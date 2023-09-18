@@ -11,6 +11,8 @@ project('tang', 'c',
   ]
 )
 
+
+http_parser_inc = include_directories('/opt/homebrew/Cellar/http-parser/2.9.4/include/')
 libexecdir = join_paths(get_option('prefix'), get_option('libexecdir'))
 sysconfdir = join_paths(get_option('prefix'), get_option('sysconfdir'))
 bindir = join_paths(get_option('prefix'), get_option('bindir'))
@@ -55,14 +57,12 @@ add_project_arguments('-DVERSION="'+meson.project_version() + '"', language : 'c
 jose = dependency('jose', version: '>=8')
 a2x = find_program('a2x', required: false)
 compiler = meson.get_compiler('c')
-if not compiler.has_header('http_parser.h',args : '-I/usr/local/include')
+if not compiler.has_header('http_parser.h', include_directories: http_parser_inc)
   error('http-parser devel files not found.')
 endif
-if host_machine.system() == 'freebsd'
-  http_parser = compiler.find_library('http_parser',dirs : '/usr/local/lib')
-else
-  http_parser = compiler.find_library('http_parser')
-endif
+
+http_parser_libdir = '/opt/homebrew/Cellar/http-parser/2.9.4/lib'  # Replace with actual path if different
+http_parser = compiler.find_library('http_parser', dirs: http_parser_libdir)
 
 licenses = ['COPYING']
 libexecbins = []
